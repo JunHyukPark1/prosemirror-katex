@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@benrbray/prosemirror-math": "^1.0.0",
+    "katex": "^0.16.21",
     "next": "15.1.7",
     "prosemirror-dropcursor": "^1.8.1",
     "prosemirror-example-setup": "^1.2.3",

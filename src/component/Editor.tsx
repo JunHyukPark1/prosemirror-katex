@@ -5,6 +5,7 @@ import { EditorView } from "prosemirror-view";
 import { EditorState } from "prosemirror-state";
 import { customSchema } from "./model/schema";
 import { pluginSetUp } from "./plugin";
+import katex from "katex";
 
 const Editor = () => {
   const editorRef = useRef(null);
@@ -28,6 +29,7 @@ const Editor = () => {
       clipboardTextSerializer: (slice) => {
         return mathSerializer.serializeSlice(slice);
       },
+      //dispatchTransaction: () => {},
     });
 
     // focus
@@ -59,14 +61,42 @@ const Editor = () => {
       <p></p>
   `;
 
+  function replaceMathWithRendered(html: string) {
+    return html.replace(
+      /<math-(display|inline)>([\s\S]*?)<\/math-\1>/g,
+      (match, type, latex) => {
+        try {
+          return katex.renderToString(latex.trim(), {
+            throwOnError: false,
+            output: "html",
+            strict: false,
+            trust: true,
+            displayMode: true,
+          });
+        } catch (error) {
+          console.error("KaTeX rendering error:", error);
+          return match;
+        }
+      }
+    );
+  }
+
+  console.log(replaceMathWithRendered(html));
+
   return (
     <div className="content">
       <div className="center">
         <div id="editor" ref={editorRef} spellCheck="false"></div>
       </div>
-      <div id="editor-content" ref={initialRef} style={{ display: "none" }}>
+      <div id="editor-content" ref={initialRef} style={{ display: "block" }}>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
+
+      <div
+        dangerouslySetInnerHTML={{
+          __html: replaceMathWithRendered(html),
+        }}
+      />
     </div>
   );
 };
